@@ -51,6 +51,10 @@ async function connectToWhatsApp() {
             if (msg.message && msg.message.conversation) {
                 const messageBody = msg.message.conversation;
 
+                if(messageBody.startsWith(prefix + "alive")){
+                    sock.sendMessage(remoteJid, {text:"*CricBot is alive now!*"})
+                }
+
                 if (messageBody.startsWith(prefix + "livescore")) {
                     const args = messageBody.split(" ");
                     const command = args[1];
