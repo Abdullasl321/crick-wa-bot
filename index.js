@@ -8,37 +8,12 @@ const fs = require("fs");
 const axios = require('axios');
 const cron = require('node-cron');
 const moment = require('moment-timezone');
-const countryList = require('country-list');
-const emojiFlags = require('emoji-flags');
-
 
 const API_KEY = 'bddc3363-551c-4a1b-b5f5-7d809e727e19';
 const API_URL = `https://api.cricapi.com/v1/cricScore?apikey=${API_KEY}`;
 
 const prefix = ".";
 let activeTasks = {};
-
-// Function to get the country emoji from the country name
-function getCountryEmoji(countryName) {
-    // Get the country code from the country name
-    const countryCode = countryList.getCode(countryName);
-
-    if (!countryCode) {
-        console.error(`Country code not found for: ${countryName}`);
-        return '';
-    }
-
-    // Get the emoji from the country code
-    const countryEmoji = emojiFlags[countryCode];
-
-    if (!countryEmoji) {
-        console.error(`Emoji not found for country code: ${countryCode}`);
-        return '';
-    }
-
-    return countryEmoji.emoji;
-}
-
 
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
@@ -153,13 +128,11 @@ async function connectToWhatsApp() {
                             const team1Name = team1.match(/(.*?) \[/)[1];
                             const team2Name = team2.match(/(.*?) \[/)[1];
 
-                            const team1Emoji = getCountryEmoji(team1Name);
-                            const team2Emoji = getCountryEmoji(team2Name);
-
+                            
 
                             const liveUpdate = `            🏏 *𝘓𝘐𝘝𝘌 𝘜𝘗𝘋𝘈𝘛𝘌𝘚* 🏏
 
-*${team1Name}* ${team1Emoji} vs *${team2Name}* ${team2Emoji}
+*${team1Name}* vs *${team2Name}*
 (${series})
 
 > *${team1Name}* 🏏: ${team1Score}
