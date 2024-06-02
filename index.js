@@ -47,16 +47,34 @@ async function connectToWhatsApp() {
     sock.ev.on('messages.upsert', async ({ messages }) => {
         const remoteJid = messages[0].key.remoteJid;
 
-        messages.forEach(async (msg) => {
-            if (msg.message && msg.message.conversation) {
-                const messageBody = msg.message.conversation;
+        if (messages.length > 0 && messages[0].message) {
+            const messageContent = messages[0].message.conversation;
+            if (messages.length > 0) {
+                const senderRemoteJid = messages[0].key.remoteJid;
 
-                if(messageBody.startsWith(prefix + "alive")){
+                const groupMessageContent = messages
+                    .map((message) => {
+                        // Check if the message is an instance of ExtendedTextMessage
+                        if (message.message.extendedTextMessage) {
+                            // If it is, extract the text property
+                            return message.message.extendedTextMessage.text;
+                        } else {
+                            // Otherwise, return an empty string or handle the case accordingly
+                            return "";
+                        }
+                    })
+                    .filter((content) => content.trim() !== "");
+
+                const grpmsg = groupMessageContent.join("\n");
+        messages.forEach(async (msg) => {
+
+
+                if(grpmsg.startsWith(prefix + "alive")){
                     sock.sendMessage(remoteJid, {text:"*CricBot is alive now!*"})
                 }
 
-                if (messageBody.startsWith(prefix + "livescore")) {
-                    const args = messageBody.split(" ");
+                if (grpmsg.startsWith(prefix + "livescore")) {
+                    const args = grpmsg.split(" ");
                     const command = args[1];
                     
                     if (command === "stop") {
@@ -136,10 +154,10 @@ https://chat.whatsapp.com/C2T0r1c2vLj8RdC3CII2Ky`;
                     activeTasks[remoteJid] = task;
                     task.start();
                     sock.sendMessage(remoteJid, { text: `✅ *LIVE SCORE UPDATES* 🏏\n\n> Starting at: ${startTimeSL.format('HH:mm')} Sri Lanka Time\n> Update Duration: ${updateDuration} minutes` });
-                }
+                    }
+                });
             }
-        });
+        }
     });
 }
-
 connectToWhatsApp();
